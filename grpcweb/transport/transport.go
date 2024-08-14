@@ -322,12 +322,14 @@ func buildTLSConfig(tlsOptions *TLSOptions) (*tls.Config, error) {
 		}
 		config.Certificates = []tls.Certificate{clientCert}
 	}
-	certificatePool := x509.NewCertPool()
-	for _, caCert := range tlsOptions.RootCertificates {
-		if ok := certificatePool.AppendCertsFromPEM(caCert); !ok {
-			return nil, errors.New("unable to append root certificate for tls context")
+	if len(tlsOptions.RootCertificates) > 0 {
+		certificatePool := x509.NewCertPool()
+		for _, caCert := range tlsOptions.RootCertificates {
+			if ok := certificatePool.AppendCertsFromPEM(caCert); !ok {
+				return nil, errors.New("unable to append root certificate for tls context")
+			}
 		}
+		config.RootCAs = certificatePool
 	}
-	config.RootCAs = certificatePool
 	return &config, nil
 }
